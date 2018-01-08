@@ -313,6 +313,7 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
         )
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.cutIn_spinBox = QtWidgets.QSpinBox(self)
+        self.cutIn_spinBox.setMaximum(999999)
         self.horizontalLayout_4.addWidget(self.cutIn_spinBox)
         self.cutOut_spinBox = QtWidgets.QSpinBox(self)
         self.cutOut_spinBox.setMaximum(999999)
@@ -679,8 +680,7 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
         self.cutIn_cutOut_label.setVisible(False)
         self.cutIn_spinBox.setVisible(False)
         self.cutOut_spinBox.setVisible(False)
-        self.image_format.label.setVisible(False)
-        self.image_format.combo_box.setVisible(False)
+        self.image_format.set_visible(False)
 
         # hide update bid fields
         self.update_bid_label.setVisible(False)
@@ -902,8 +902,7 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
             self.cutIn_cutOut_label.setVisible(False)
             self.cutIn_spinBox.setVisible(False)
             self.cutOut_spinBox.setVisible(False)
-            self.image_format.label.setVisible(False)
-            self.image_format.combo_box.setVisible(False)
+            self.image_format.set_visible(False)
 
             # resources field
             self.resources_label.setVisible(True)
@@ -949,8 +948,7 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
             self.cutIn_cutOut_label.setVisible(False)
             self.cutIn_spinBox.setVisible(False)
             self.cutOut_spinBox.setVisible(False)
-            self.image_format.label.setVisible(False)
-            self.image_format.combo_box.setVisible(False)
+            self.image_format.set_visible(False)
 
             # resources field
             self.resources_label.setVisible(False)
@@ -992,8 +990,7 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
             self.cutIn_cutOut_label.setVisible(True)
             self.cutIn_spinBox.setVisible(True)
             self.cutOut_spinBox.setVisible(True)
-            self.image_format.label.setVisible(True)
-            self.image_format.combo_box.setVisible(True)
+            self.image_format.set_visible(True)
 
             # resources field
             self.resources_label.setVisible(False)
@@ -1035,8 +1032,7 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
             self.cutIn_cutOut_label.setVisible(False)
             self.cutIn_spinBox.setVisible(False)
             self.cutOut_spinBox.setVisible(False)
-            self.image_format.label.setVisible(False)
-            self.image_format.combo_box.setVisible(False)
+            self.image_format.set_visible(False)
 
             # resources field
             self.resources_label.setVisible(False)

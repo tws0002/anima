@@ -1629,15 +1629,17 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
                 from stalker.db.session import DBSession
                 DBSession.rollback()
                 return
+            finally:
+                self.update_previous_versions_table_widget()
 
-            # inform the user about what has happened
-            if logger.level != logging.DEBUG:
-                QtWidgets.QMessageBox.information(
-                    self,
-                    "Export",
-                    "%s\n\n has been exported correctly!" %
-                    new_version.filename
-                )
+                # inform the user about what has happened
+                if logger.level != logging.DEBUG:
+                    QtWidgets.QMessageBox.information(
+                        self,
+                        "Export",
+                        "%s\n\n has been exported correctly!" %
+                        new_version.filename
+                    )
 
     def save_as_push_button_clicked(self):
         """runs when the save_as_pushButton clicked
@@ -2118,14 +2120,17 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
 
         if answer == QtWidgets.QMessageBox.Yes:
             # remove the thumbnail and its thumbnail and its thumbnail
-            from stalker import Link
+            from stalker import Task, Link
             t = Link.query.filter(Link.id == thumb_id).first()
-            DBSession.delete(t)
+            task = Task.query.get(task_id)
+            task.thumbnail = None
             if t.thumbnail:
-                DBSession.delete(t.thumbnail)
                 if t.thumbnail.thumbnail:
                     DBSession.delete(t.thumbnail.thumbnail)
+                    t.thumbnail = None
+                DBSession.delete(t.thumbnail)
             # leave the files there
+            DBSession.delete(t)
             DBSession.commit()
 
             # update the thumbnail

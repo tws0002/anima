@@ -105,7 +105,10 @@ class ConversionManagerBase(object):
         """
         nodes_converted = []
         for node_type in self.conversion_spec_sheet:
-            for node in self.list_nodes(node_type):
+            print('searching for: %s' % node_type)
+            found_nodes = self.list_nodes(node_type)
+            print('found: %s nodes' % len(found_nodes))
+            for node in found_nodes:
                 new_node = self.convert(node)
                 nodes_converted.append([node, new_node])
 
@@ -118,12 +121,18 @@ class ConversionManagerBase(object):
         node_type = self.get_node_type(node)
         conversion_specs = self.conversion_spec_sheet.get(node_type)
         if not conversion_specs:
+            print('No conversion_specs for: %s' % node_type)
             return
 
         # call any call_before
         call_before = conversion_specs.get('call_before')
         if call_before and callable(call_before):
             call_before(node)
+
+        # some conversion specs doesn't require a new node to be created
+        # so return early if this is the case
+        if 'node_type' not in conversion_specs:
+            return node
 
         node_creator = self.node_creator_factory(conversion_specs)
         rs_node = node_creator.create()
@@ -191,7 +200,19 @@ class ConversionManagerBase(object):
                             except TypeError:
                                 # it should use two parameters, also include
                                 # the node itself
-                                attr_value = converter(source_attr_value, node)
+                                try:
+                                    attr_value = converter(
+                                        source_attr_value,
+                                        node
+                                    )
+                                except TypeError:
+                                    # so this is the third form that also
+                                    # includes the rs node
+                                    attr_value = converter(
+                                        source_attr_value,
+                                        node,
+                                        rs_node
+                                    )
                         else:
                             attr_value = converter
                         self.set_attr(rs_node, attr, attr_value)
