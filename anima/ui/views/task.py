@@ -70,7 +70,7 @@ class TaskTreeView(QtWidgets.QTreeView):
         """
         self.resizeColumnToContents(0)
 
-    def fill(self):
+    def fill(self, show_completed_projects=False):
         """fills the tree view with data
         """
         logger.debug('start filling tasks_treeView')
@@ -88,8 +88,14 @@ class TaskTreeView(QtWidgets.QTreeView):
                     Project.id, Project.name, Project.entity_type,
                     Project.status_id,
                     subquery.exists().label('has_children')
-                )\
-                .order_by(Project.name)
+                )
+            if not show_completed_projects:
+                from stalker import Status
+                status_cmpl = \
+                    Status.query.filter(Status.code == 'CMPL').first()
+                query = query.filter(Project.status != status_cmpl)
+
+            query = query.order_by(Project.name)
             projects = query.all()
         else:
             self.project.has_children = bool(self.project.tasks)
@@ -105,6 +111,7 @@ class TaskTreeView(QtWidgets.QTreeView):
         task_tree_model.populateTree(projects)
         self.setModel(task_tree_model)
         self.is_updating = False
+
         logger.debug('finished filling tasks_treeView')
 
     def show_context_menu(self, position):
@@ -149,6 +156,7 @@ class TaskTreeView(QtWidgets.QTreeView):
         create_project_structure_action = None
         create_task_structure_action = None
         update_project_action = None
+        assign_users_action = None
         open_in_web_browser_action = None
         open_in_file_browser_action = None
         copy_url_action = None
@@ -173,6 +181,8 @@ class TaskTreeView(QtWidgets.QTreeView):
                 if defaults.is_power_user(logged_in_user):
                     update_project_action = \
                         menu.addAction(u'\uf044 Update Project...')
+                    assign_users_action = \
+                        menu.addAction(u'\uf0c0 Assign Users...')
                     create_project_structure_action = \
                         menu.addAction(u'\uf115 Create Project Structure')
                     create_child_task_action = \
@@ -477,6 +487,18 @@ class TaskTreeView(QtWidgets.QTreeView):
                         self.find_and_select_entity_item(entity)
 
                     project_main_dialog.deleteLater()
+
+                elif selected_item == assign_users_action:
+                    from anima.ui import project_resources_dialog
+                    project_resources_main_dialog = \
+                        project_resources_dialog.MainDialog(
+                            parent=self,
+                            project=entity
+                        )
+                    project_resources_main_dialog.exec_()
+                    result = project_resources_main_dialog.result()
+
+                    project_resources_main_dialog.deleteLater()
 
                 else:
                     # go to the dependencies
