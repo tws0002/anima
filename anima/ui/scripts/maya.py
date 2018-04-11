@@ -17,7 +17,7 @@ def set_qt_lib():
     import pymel
     try:
         from anima import ui
-        if pymel.versions.current() > 201650:
+        if pymel.versions.current() > 201651:
             ui.SET_PYSIDE2()
         else:
             ui.SET_PYSIDE()

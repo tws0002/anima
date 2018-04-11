@@ -8,15 +8,15 @@ import hou
 
 from anima import logger
 
-
-if hou.applicationVersion()[0] <= 15:
-    from anima.ui import SET_PYSIDE
-    from anima.utils import do_db_setup
-    SET_PYSIDE()
-else:
-    from anima.ui import SET_PYSIDE2
-    from anima.utils import do_db_setup
-    SET_PYSIDE2()
+def set_qt_lib():
+    if hou.applicationVersion()[0] <= 16:
+        from anima.ui import SET_PYSIDE2
+        from anima.utils import do_db_setup
+        SET_PYSIDE2()
+    else:
+        from anima.ui import SET_PYSIDE
+        from anima.utils import do_db_setup
+        SET_PYSIDE()
 
 
 class Executor(object):
@@ -42,12 +42,15 @@ class Executor(object):
         self.event_loop.processEvents()
         self.application.sendPostedEvents(None, 0)
 
-
+from anima.utils import do_db_setup
 def version_creator():
     """Helper function for version_creator UI for Houdini
     """
     # connect to db
     do_db_setup()
+
+    # set PySide or PySide2
+    set_qt_lib()
 
     import logging
     from stalker import log

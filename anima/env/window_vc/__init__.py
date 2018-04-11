@@ -16,19 +16,19 @@ from anima.env.base import EnvironmentBase
 from anima.recent import RecentFileManager
 
 
-class Photoshop(EnvironmentBase):
+class Window(EnvironmentBase):
     """The photoshop environment class
     """
-    name = "Photoshop"
-    extensions = ['.psd']
+    name = "Window"
+    #extensions = ['.psd']
 
     def __init__(self):
         """photoshop specific init
         """
-        super(Photoshop, self).__init__(name=self.name)
+        super(Window, self).__init__(name=self.name)
         # connect to the application
-        self.photoshop = comtypes.client.CreateObject('Photoshop.Application')
-
+        self.Window = comtypes.client.CreateObject('Window.Application')
+'''
     def save_as(self, version, run_pre_publishers=True):
         """the save action for photoshop environment
 
@@ -46,7 +46,7 @@ class Photoshop(EnvironmentBase):
             )
 
         version.update_paths()
-        version.extension = self.extensions[0]
+        version.extension = '.psd'
         version.created_with = self.name
 
         # Define PSD save options
@@ -97,7 +97,7 @@ class Photoshop(EnvironmentBase):
             )
 
         version.update_paths()
-        version.extension = self.extensions[0]
+        version.extension = '.psd'
         version.created_with = self.name
 
         # Define PSD save options
@@ -204,3 +204,4 @@ class Photoshop(EnvironmentBase):
             logger.debug("version from recent files is: %s" % version)
 
         return version
+    '''

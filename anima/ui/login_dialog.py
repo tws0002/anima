@@ -45,7 +45,7 @@ class MainDialog(QtWidgets.QDialog, login_dialog_UI.Ui_Dialog, AnimaDialogBase):
         self.setupUi(self)
 
         window_title = 'Login Dialog | ' + \
-                       'Anima v' + anima.__version__
+                       'SPipe v' + anima.__version__
 
         # change the window title
         self.setWindowTitle(window_title)
@@ -126,4 +126,3 @@ class MainDialog(QtWidgets.QDialog, login_dialog_UI.Ui_Dialog, AnimaDialogBase):
                 "Error",
                 "login or password is incorrect"
             )
-
