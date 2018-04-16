@@ -202,5 +202,3 @@ class Photoshop(EnvironmentBase):
                     break
 
             logger.debug("version from recent files is: %s" % version)
-
-        return version

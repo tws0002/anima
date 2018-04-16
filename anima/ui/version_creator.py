@@ -600,7 +600,6 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
             <html>
                 <head/>
                 <body>
-                    <p>Uncheck it if you are going to use
                         <span style="font-weight:600;">Alembic Cache</span>.
                     </p>
                 </body>
@@ -2217,7 +2216,6 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
     def recent_files_combo_box_index_changed(self, path):
         """runs when the recent files combo box index has changed
 
-        :param path:
         :return:
         """
         current_index = self.recent_files_comboBox.currentIndex()
