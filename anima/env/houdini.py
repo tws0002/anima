@@ -485,7 +485,6 @@ class Houdini(EnvironmentBase):
 
 class FileHistory(object):
     """A Houdini recent file history parser
-    
     Holds the data in a dictionary, where the keys are the file types and the
     values are string list of recent file paths of that type
     """
