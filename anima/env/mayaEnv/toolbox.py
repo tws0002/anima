@@ -456,11 +456,20 @@ def UI():
             )
 
         # ----- MODELING ------
-        modeling_columnLayout = pm.columnLayout(
-            'modeling_columnLayout',
+        modeling_column_layout = pm.columnLayout(
+            'modeling_column_layout',
             adj=True, cal="center", rs=row_spacing)
-        with modeling_columnLayout:
+        with modeling_column_layout:
             color.reset()
+            pm.button(
+                'delete_render_and_display_layers_button',
+                l="Delete Render and Display Layers",
+                c=RepeatedCallback(Modeling.delete_render_and_display_layers),
+                ann=Modeling.delete_render_and_display_layers.__doc__,
+                bgc=color.color
+            )
+
+            color.change()
             pm.button('toggleFaceNormalDisplay_button',
                       l="toggle face normal display",
                       c=RepeatedCallback(
@@ -830,6 +839,17 @@ def UI():
         )
         with render_columnLayout:
             color.reset()
+
+            color.change()
+            pm.button(
+                'submit_afanasy_button',
+                l="Afanasy Job Submitter",
+                c=RepeatedCallback(Render.afanasy_job_submitter),
+                ann=Render.afanasy_job_submitter.__doc__,
+                bgc=color.color
+            )
+
+            color.change()
             pm.button(
                 'open_node_in_browser_button',
                 l="Open node in browser",
@@ -1740,7 +1760,7 @@ def UI():
         tabLabel=[
             (general_columnLayout, "Gen"),
             (reference_columnLayout, "Ref"),
-            (modeling_columnLayout, "Mod"),
+            (modeling_column_layout, "Mod"),
             (rigging_columnLayout, "Rig"),
             (render_columnLayout, "Ren"),
             (previs_columnLayout, "Prev"),
@@ -2111,15 +2131,9 @@ class Previs(object):
     def shots_from_cams(cls):
         """creates shot nodes from selected cameras
         """
-        # get sequencer
-        seqs = pm.ls(type="sequencer")
-        if not seqs:
-            raise RuntimeError("No Sequencer found!")
-
-        seq = seqs[0]
-
         # get cameras
         cams = pm.ls(sl=1, type=pm.nt.Transform)
+
         real_cams = []
 
         # filter cameras
@@ -2129,6 +2143,16 @@ class Previs(object):
                 real_cams.append(cam)
 
         cams = real_cams
+
+        # get sequencer
+        seqs = pm.ls(type="sequencer")
+        seq = None
+        if not seqs:
+            # create a sequencer
+            sm = pm.ls(type='sequenceManager')[0]
+            seq = sm.create_sequence()
+        else:
+            seq = seqs[0]
 
         # create shot nodes from cameras
         for cam in cams:
@@ -2142,12 +2166,10 @@ class Previs(object):
             end_frame = keyframes[-1]
 
             # create a shot node
-            shot = pm.nt.Shot()
+            shot = seq.create_shot()
             shot.startFrame.set(start_frame)
             shot.endFrame.set(end_frame)
             shot.setSequenceStartTime(start_frame)
-
-            seq.add_shot(shot)
             shot.set_camera(cam)
 
             # TODO: write this properly
@@ -2897,6 +2919,12 @@ class Modeling(object):
     """
 
     @classmethod
+    def delete_render_and_display_layers(cls):
+        """Deletes the display and render layers in the current scene
+        """
+        pm.delete(pm.ls(type=['displayLayer', 'renderLayer']))
+
+    @classmethod
     def reverse_normals(cls):
         selection = pm.ls(sl=1)
         for item in selection:
@@ -3455,6 +3483,14 @@ class Rigging(object):
 class Render(object):
     """Tools for render
     """
+
+    @classmethod
+    def afanasy_job_submitter(cls):
+        """Opens the Afanasy job sumitter UI
+        """
+        from anima.env.mayaEnv import afanasy
+        ui = afanasy.UI()
+        ui.show()
 
     @classmethod
     def auto_convert_to_redshift(cls):
