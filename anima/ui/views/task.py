@@ -15,6 +15,7 @@ class TaskTreeView(QtWidgets.QTreeView):
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
+        self.show_completed_projects = False
 
         super(TaskTreeView, self).__init__(*args, **kwargs)
 
@@ -70,7 +71,7 @@ class TaskTreeView(QtWidgets.QTreeView):
         """
         self.resizeColumnToContents(0)
 
-    def fill(self, show_completed_projects=False):
+    def fill(self):
         """fills the tree view with data
         """
         logger.debug('start filling tasks_treeView')
@@ -89,7 +90,7 @@ class TaskTreeView(QtWidgets.QTreeView):
                     Project.status_id,
                     subquery.exists().label('has_children')
                 )
-            if not show_completed_projects:
+            if not self.show_completed_projects:
                 from stalker import Status
                 status_cmpl = \
                     Status.query.filter(Status.code == 'CMPL').first()
@@ -161,6 +162,7 @@ class TaskTreeView(QtWidgets.QTreeView):
         open_in_file_browser_action = None
         copy_url_action = None
         copy_id_to_clipboard = None
+        fix_task_status_action = None
 
         from anima import defaults
         from stalker import LocalSession
@@ -204,6 +206,9 @@ class TaskTreeView(QtWidgets.QTreeView):
                 # this is a task
                 create_task_structure_action = \
                     menu.addAction(u'\uf115 Create Task Structure')
+
+                fix_task_status_action = \
+                    menu.addAction(u'\uf0e8 Fix Task Status')
 
                 task = entity
                 from stalker import Status
@@ -470,6 +475,19 @@ class TaskTreeView(QtWidgets.QTreeView):
                     else:
                         return
 
+                elif selected_item == fix_task_status_action:
+                    from stalker import Task
+                    if isinstance(entity, Task):
+                        from anima import utils
+                        utils.fix_task_statuses(entity)
+
+                        from stalker.db.session import DBSession
+                        DBSession.add(entity)
+                        DBSession.commit()
+
+                        if item.parent:
+                            item.parent.reload()
+
                 elif selected_item == update_project_action:
                     from anima.ui import project_dialog
                     project_main_dialog = project_dialog.MainDialog(
@@ -564,13 +582,17 @@ class TaskTreeView(QtWidgets.QTreeView):
             # the item is not loaded to the UI yet
             # start loading its parents
             # start from the project
-            item = self.find_entity_item(task.project, tree_view)
+            from stalker import Task
+            if isinstance(task, Task):
+                item = self.find_entity_item(task.project, tree_view)
+            else:
+                item = self.find_entity_item(task, tree_view)
             logger.debug('item for project: %s' % item)
 
             if item:
                 tree_view.setExpanded(item.index(), True)
 
-            if task.parents:
+            if isinstance(task, Task) and task.parents:
                 # now starting from the most outer parent expand the tasks
                 for parent in task.parents:
                     item = self.find_entity_item(parent, tree_view)
