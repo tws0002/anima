@@ -1495,7 +1495,15 @@ class Playblaster(object):
         if not extra_playblast_options:
             extra_playblast_options = {}
 
-        if len(shots):
+        # if a time range is selected do a simple playblast
+        start, end = pm.timeControl(
+            pm.melGlobals['$gPlayBackSlider'],
+            q=1,
+            rangeArray=True
+        )
+        time_range_selected = (end - start) > 1
+
+        if len(shots) and not time_range_selected:
             if not self.batch_mode:
                 response = pm.confirmDialog(
                     title='Which Camera?',
@@ -1516,6 +1524,9 @@ class Playblaster(object):
                 return []
             return self.playblast_all_shots(extra_playblast_options)
         else:
+            if time_range_selected:
+                extra_playblast_options['startTime'] = start
+                extra_playblast_options['endTime'] = end
             return self.playblast_simple(extra_playblast_options)
 
     def playblast_simple(self, extra_playblast_options=None):
@@ -1603,6 +1614,8 @@ class Playblaster(object):
     def convert_image_sequence_to_video(cls, result):
         """converts image sequence to video
         """
+        import os
+        import glob
         # convert image sequences to h264
         new_result = []
         for output in result:
@@ -1610,6 +1623,21 @@ class Playblaster(object):
             # sequence
             if '#' in output:
                 # convert to mp4
+
+                # add start_number option
+                temp_str = output.replace('#', '*')
+                sequence = sorted(glob.glob(temp_str))
+                options = {
+                    '-y': ''  # overwrite previous playblast
+                }
+                if sequence:
+                    filename = os.path.basename(sequence[0])
+                    start_number = int(filename.split('.')[1])
+
+                    options = {
+                        'start_number': start_number
+                    }
+
                 # first convert the #'s to %03d format
                 temp_str = output.replace('#', '')
                 hash_count = len(output) - len(temp_str)
@@ -1623,7 +1651,8 @@ class Playblaster(object):
 
                 from anima.utils import MediaManager
                 mm = MediaManager()
-                output = mm.convert_to_h264(output, output_h264)
+                output = mm.convert_to_h264(output, output_h264, options=options)
+
             new_result.append(output)
         return new_result
 
