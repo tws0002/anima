@@ -237,6 +237,9 @@ class Fusion(EnvironmentBase):
         self.fusion = bmf.scriptapp("Fusion")
         self.fusion_prefs = self.fusion.GetPrefs()['Global']
 
+        # update name with version
+        self.name = 'Fusion%s' % self.fusion.GetAttrs("FUSIONS_Version").split('.')[0]
+
         self.comp = self.fusion.GetCurrentComp()
         self.comp_prefs = self.comp.GetPrefs()['Comp']
 
@@ -558,6 +561,10 @@ class Fusion(EnvironmentBase):
         Creates the default saver nodes if there isn't any existing outputs,
         and updates the ones that is already created
         """
+        fps = 25
+        if version:
+            project = version.task.project
+            fps = project.fps
 
         def output_path_generator(file_format):
             """helper function to generate the output path
@@ -593,6 +600,12 @@ class Fusion(EnvironmentBase):
                 file_format,
                 output_file_name
             ).replace('\\', '/')
+
+            # make the path Project: relative
+            output_file_full_path = 'Project:%s' % os.path.relpath(
+                output_file_full_path,
+                os.path.dirname(version.absolute_path)
+            )
 
             # set the output path
             return '%s' % os.path.normpath(
@@ -688,7 +701,33 @@ class Fusion(EnvironmentBase):
                         'ref_id': random_ref_id
                     }
                 }
-            }
+            },
+            {
+                'name': 'mp4',
+                'node_tree': {
+                    'type': 'Saver',
+                    'attr': {
+                        'TOOLS_Name': output_node_name_generator('mp4'),
+                    },
+                    'input_list': {
+                        'Clip': output_path_generator('mp4'),
+                        'ProcessRed': 1,
+                        'ProcessGreen': 1,
+                        'ProcessBlue': 1,
+                        'ProcessAlpha': 0,
+                        'OutputFormat': 'QuickTimeMovies',
+                        'ProcessMode': 'Auto',
+                        'SaveFrames': 'Full',
+                        'QuickTimeMovies.Compression': 'H.264_avc1',
+                        'QuickTimeMovies.Quality': 90.0,
+                        'QuickTimeMovies.FrameRateFps': fps,  # from project.fps
+                        'QuickTimeMovies.KeyFrames': 10,
+                    },
+                    'connected_to': {
+                        'ref_id': random_ref_id
+                    }
+                }
+            },
         ]
 
         # selectively generate output format
@@ -760,8 +799,14 @@ class Fusion(EnvironmentBase):
 
     @project_directory.setter
     def project_directory(self, project_directory_in):
+        """Sets project directory
+
+        :param str project_directory_in: the project directory
+        :return:
+        """
 
         project_directory_in = os.path.normpath(project_directory_in)
+        print('setting project directory to: %s' % project_directory_in)
 
         # set a path map
         self.comp.SetPrefs(
