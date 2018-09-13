@@ -1950,6 +1950,9 @@ class MainDialog(QtWidgets.QDialog, AnimaDialogBase):
 
                 version_updater_main_dialog.exec_()
 
+                # delete the dialog when it is done
+                version_updater_main_dialog.deleteLater()
+
         # close the dialog
         # self.close()
 
