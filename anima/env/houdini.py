@@ -25,7 +25,9 @@ class Houdini(EnvironmentBase):
             value = repo.path
             self.set_environment_variable(env_var_name, value)
 
-        self.name = '%s%s' % (self.name, hou.applicationVersion()[0])
+        self.name = '%s%s.%s' % (
+            self.name, hou.applicationVersion()[0], hou.applicationVersion()[1]
+        )
 
     def save_as(self, version, run_pre_publishers=True):
         """the save action for houdini environment
@@ -324,7 +326,13 @@ class Houdini(EnvironmentBase):
         current_take = hou.takes.currentTake()
         hou.takes.setCurrentTake(hou.takes.rootTake())
 
-        output_filename = '$HIP/Outputs/renders/$OS/`$HIPNAME`_$OS.$F4.exr'
+        # HIPNAME is not working well with Afanasy
+        # So use the scene base name again
+        # output_filename = '$HIP/Outputs/renders/$OS/`$HIPNAME`_$OS.$F4.exr'
+        import os
+        output_filename = '$HIP/Outputs/renders/$OS/%s_$OS.$F4.exr' % (
+            os.path.splitext(version.filename)[0]
+        )
 
         output_nodes = self.get_output_nodes()
         for output_node in output_nodes:
@@ -352,11 +360,12 @@ class Houdini(EnvironmentBase):
                         flat_output_file_path
                     )
 
-                try:
-                    os.makedirs(flat_output_file_path)
-                except OSError:
-                    # dirs exists
-                    pass
+                # do not create the folders
+                # try:
+                #     os.makedirs(flat_output_file_path)
+                # except OSError:
+                #     # dirs exists
+                #     pass
             elif output_node.type().name() == 'Redshift_ROP':
                 # set the file name
                 try:
@@ -406,11 +415,12 @@ class Houdini(EnvironmentBase):
                         flat_output_file_path
                     )
 
-                try:
-                    os.makedirs(flat_output_file_path)
-                except OSError:
-                    # dirs exists
-                    pass
+                # do not create the folders
+                # try:
+                #     os.makedirs(flat_output_file_path)
+                # except OSError:
+                #     # dirs exists
+                #     pass
 
         # restore the current take
         hou.takes.setCurrentTake(current_take)
