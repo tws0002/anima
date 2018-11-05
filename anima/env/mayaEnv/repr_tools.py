@@ -289,7 +289,6 @@ class RepresentationGenerator(object):
 
     def get_latest_repr_version(self, take_name):
         """returns the latest published version or creates a new version
-
         :param str take_name: The take_name
         :return:
         """
@@ -320,7 +319,6 @@ class RepresentationGenerator(object):
     @classmethod
     def is_model_task(cls, task):
         """checks if the given task is a model task
-
         :param task: A Stalker Task instance
         """
         task_type = task.type
@@ -339,7 +337,6 @@ class RepresentationGenerator(object):
     @classmethod
     def is_look_dev_task(cls, task):
         """checks if the given task is a look development task
-
         :param task: A Stalker Task instance
         """
         task_type = task.type
@@ -358,7 +355,6 @@ class RepresentationGenerator(object):
     @classmethod
     def is_scene_assembly_task(cls, task):
         """checks if the given task is a scene assembly task
-
         :param task: A Stalker Task instance
         """
         task_type = task.type
@@ -377,7 +373,6 @@ class RepresentationGenerator(object):
     @classmethod
     def is_vegetation_task(cls, task):
         """checks if the given task is a vegetation task
-
         :param task: A Stalker Task instance
         """
         task_type = task.type
@@ -397,7 +392,6 @@ class RepresentationGenerator(object):
     def is_exterior_or_interior_task(cls, task):
         """checks if the given task is the first Layout task of an
         Exterior or Interior task.
-
         :param task: a stalker.task
         :return:
         """
@@ -417,7 +411,6 @@ class RepresentationGenerator(object):
 
     def _validate_version(self, version):
         """validates the given version value
-
         :param version: A stalker.model.version.Version instance
         :return:
         """
@@ -445,7 +438,6 @@ class RepresentationGenerator(object):
 
     def open_version(self, version=None):
         """Opens the given version
-
         :param version: A stalker.models.version.Version instance
         :return:
         """
@@ -458,7 +450,6 @@ class RepresentationGenerator(object):
     @classmethod
     def make_unique(cls, filename, force=True):
         """Generates a unique filename if the file already exists
-
         :param filename:
         :param force:
         :return:
@@ -939,7 +930,7 @@ class RepresentationGenerator(object):
                         cmd,
                         shell=True
                     )
-    
+
                 proc.wait()
 
         return orig_path_as_tx
@@ -963,7 +954,6 @@ class RepresentationGenerator(object):
 
     def generate_ass(self):
         """generates the ASS representation of the current scene
-
         For Model Tasks the ASS is generated over the LookDev Task because it
         is not possible to assign a material to an object inside an ASS file.
         """
@@ -1396,7 +1386,6 @@ class RepresentationGenerator(object):
 
     def generate_rs(self):
         """generates the RS representation of the current scene
-
         For Model Tasks the RS is generated over the LookDev Task because it
         is not possible to assign a material to an object inside an RS file.
         """
