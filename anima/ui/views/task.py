@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2012-2017, Anima Istanbul
+# Copyright (c) 2012-2018, Anima Istanbul
 #
 # This module is part of anima-tools and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
@@ -56,6 +56,7 @@ class DuplicateTaskHierarchyDialog(QtWidgets.QDialog):
         # the check box
         self.check_box = QtWidgets.QCheckBox(self)
         self.check_box.setText('Keep resources')
+        self.check_box.setChecked(True)
         self.main_layout.addWidget(self.check_box)
 
         # the button box

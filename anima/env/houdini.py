@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2012-2017, Anima Istanbul
+# Copyright (c) 2012-2018, Anima Istanbul
 #
 # This module is part of anima-tools and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
@@ -13,7 +13,11 @@ class Houdini(EnvironmentBase):
     """the houdini environment class
     """
     name = 'Houdini'
-    extensions = ['.hip', '.hipnc', '.hiplc']
+    extensions = {
+        hou.licenseCategoryType.Commercial: '.hip',
+        hou.licenseCategoryType.Apprentice: '.hipnc',
+        hou.licenseCategoryType.Indie: '.hiplc'
+    }
 
     def __init__(self, name="", version=None):
         super(Houdini, self).__init__(name, version)
@@ -46,10 +50,7 @@ class Houdini(EnvironmentBase):
         version.update_paths()
 
         # set the extension to hip
-        if not hou.isApprentice():
-            version.extension = self.extensions[0]
-        else:
-            version.extension = self.extensions[1]
+        version.extension = self.extensions[hou.licenseCategory()]
 
         # define that this version is created with Houdini
         version.created_with = self.name

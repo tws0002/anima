@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2012-2017, Anima Istanbul
+# Copyright (c) 2012-2018, Anima Istanbul
 #
 # This module is part of anima-tools and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
@@ -804,9 +804,8 @@ order by cast("TimeLogs".start as date)
         minutes = (remaining_seconds - hours * 3600) // 60
         if self.no_time_left:
             self.info_area_label.setText(
-                'You need <b>%i h %i min</b> extra time. '
-                'If you enter this time log, time of the task will be '
-                'extended. Are you sure?' % (hours, minutes)
+                '<b style="color: red;">%i h %i min</b> extra time.' %
+                (hours, minutes)
             )
             self.show_revision_fields()
             self.extended_hours = hours
@@ -814,8 +813,8 @@ order by cast("TimeLogs".start as date)
         else:
             self.hide_revision_fields()
             self.info_area_label.setText(
-                'If you enter this time log, '
-                '<b>%i h %i min</b> will remain to complete this task.' %
+                '<b style="color: green;">%i h %i min</b> will remain to '
+                'complete this task.' %
                 (hours, minutes)
             )
             self.extended_hours = None
