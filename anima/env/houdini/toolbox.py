@@ -3,6 +3,19 @@
 #
 # This module is part of anima-tools and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
+import hou
+
+from anima import logger
+
+
+if hou.applicationVersion()[0] <= 15:
+    from anima.ui import SET_PYSIDE
+    from anima.utils import do_db_setup
+    SET_PYSIDE()
+else:
+    from anima.ui import SET_PYSIDE2
+    from anima.utils import do_db_setup
+    SET_PYSIDE2()
 
 from anima.ui.lib import QtCore, QtWidgets
 
