@@ -86,15 +86,23 @@ class UI(object):
         self.window = None
 
     def show(self):
+        # some default values
+        section_label_height = 30
+        labels_width = 140
+
         if pm.window(self.windows_name, exists=True):
             pm.deleteUI(self.windows_name)
 
-        self.window = pm.window(self.windows_name, t='Afanasy')
+        self.window = pm.window(self.windows_name, t='Afanasy Job Submission')
 
         with pm.columnLayout(adj=True):
-            labels_width = 90
-            with pm.rowLayout(nc=4, adj=2, cw4=(labels_width, 40, 15, 15)):
-                pm.text(l='Start Frame')
+
+            pm.text(l='<h1><b>Job Parameters<b><h1>', h=section_label_height)
+            with pm.rowLayout(nc=4,
+                              adj=2,
+                              cl4=['right', 'left', 'center', 'center'],
+                              cw4=(labels_width, 40, 15, 15)):
+                pm.text(l='<div align="right"><b>Start Frame</b></div>')
                 start_time_int_field = pm.intField(
                     'cgru_afanasy__start_frame',
                     v=pm.optionVar.get('cgru_afanasy__start_frame_ov', 1)
@@ -127,7 +135,7 @@ class UI(object):
                 )
 
             with pm.rowLayout(nc=4, adj=2, cw4=(labels_width, 40, 15, 15)):
-                pm.text(l='End Frame')
+                pm.text(l='<b>End Frame</b>')
                 end_time_int_field = pm.intField(
                     'cgru_afanasy__end_frame',
                     v=pm.optionVar.get('cgru_afanasy__end_frame_ov', 1)
@@ -160,57 +168,150 @@ class UI(object):
                 )
 
             with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
-                pm.text(l='Frame Per Task')
+                pm.text(l='<b>Frame Per Task</b>')
                 pm.intField(
                     'cgru_afanasy__frames_per_task',
                     v=pm.optionVar.get('cgru_afanasy__frames_per_task_ov', 1)
                 )
 
             with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
-                pm.text(l='By Frame')
+                pm.text(l='<b>By Frame</b>')
                 pm.intField(
                     'cgru_afanasy__by_frame',
                     v=pm.optionVar.get('cgru_afanasy__by_frame_ov', 1)
                 )
 
             with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
-                pm.text(l='Host Mask')
+                pm.text(l='<b>Host Mask</b>')
                 pm.textField(
                     'cgru_afanasy__hosts_mask',
                     text=pm.optionVar.get('cgru_afanasy__hosts_mask_ov', '')
                 )
 
             with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
-                pm.text(l='Host Exclude')
+                pm.text(l='<b>Host Exclude</b>')
                 pm.textField(
                     'cgru_afanasy__hosts_exclude',
                     text=pm.optionVar.get('cgru_afanasy__hosts_exclude_ov', '')
                 )
 
             with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
-                pm.text(l='Life Time (hours)')
+                pm.text(l='<b>Life Time (hours)</b>')
                 pm.intField(
                     'cgru_afanasy__life_time',
                     v=pm.optionVar.get('cgru_afanasy__life_time_ov', 240)
                 )
 
-            pm.checkBox('cgru_afanasy__paused', l='Start Paused', v=0)
-            pm.checkBox(
+            with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
+                pm.text(l='<b>Annotation</b>')
+                pm.textField(
+                    'cgru_afanasy__annotation',
+                    text=pm.optionVar.get('cgru_afanasy__annotation_ov', '')
+                )
+
+            pm.separator()
+            pm.text(l='<h1><b>Block Parameters<b><h1>', h=section_label_height)
+            with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
+                pm.text(l='<b>Errors Avoid Host</b>')
+                pm.intField(
+                    'cgru_afanasy__errors_avoid_host',
+                    v=pm.optionVar.get(
+                        'cgru_afanasy__errors_avoid_host_ov',
+                        3
+                    ),
+                    min=1,
+                    max=127
+                )
+
+            with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
+                pm.text(l='<b>Errors Retries</b>')
+                pm.intField(
+                    'cgru_afanasy__errors_retries',
+                    v=pm.optionVar.get(
+                        'cgru_afanasy__errors_retries_ov',
+                        3
+                    ),
+                    min=1,
+                    max=127
+                )
+
+            with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
+                pm.text(l='<b>Errors Task Same Host</b>')
+                pm.intField(
+                    'cgru_afanasy__errors_task_same_host',
+                    v=pm.optionVar.get(
+                        'cgru_afanasy__errors_task_same_host_ov',
+                        3
+                    ),
+                    min=1,
+                    max=127
+                )
+
+            with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
+                pm.text(l='<b>Errors Forgive Time</b>', ann='in seconds')
+                pm.intField(
+                    'cgru_afanasy__errors_forgive_time',
+                    ann='in seconds',
+                    v=pm.optionVar.get(
+                        'cgru_afanasy__errors_errors_forgive_time_ov',
+                        18000
+                    ),
+                    min=0
+                )
+
+            pm.separator()
+            pm.text(l='<h1><b>Submission Details<b><h1>', h=section_label_height)
+            with pm.rowLayout(nc=2, adj=2, cl2=('right', 'left'), cw2=(labels_width, 50)):
+                pm.text(l='<b>Start Paused</b>', al='right')
+                pm.checkBox('cgru_afanasy__paused', l='', v=0)
+
+            pm.radioButtonGrp(
                 'cgru_afanasy__separate_layers',
-                l='Submit Render Layers as Separate Tasks',
-                v=pm.optionVar.get('cgru_afanasy__separate_layers_ov', 1)
+                numberOfRadioButtons=3,
+                label='<b>Submit Render Layers<br>as Separate:</b>',
+                labelArray3=[
+                    'None',
+                    'Block',
+                    'Job'
+                ],
+                # adj=1,
+                cw4=[labels_width, 50, 50, 50],
+                sl=pm.optionVar.get('cgru_afanasy__separate_layers_ov', 1)
             )
 
+            with pm.rowLayout(nc=2, adj=2, cw2=(labels_width, 50)):
+                ann = """This is a weird hack! When used in conjunction with
+the <b>Skip Existence Frames<b> parameter of the maya render settings and the
+Frames Per Task parameters is equal or greater than the number of frames in the
+animation range, it allows the Maya scene to be loaded only once per farm
+machine. But then to be able to use all farmers there should be at least the
+same amount of Jobs that there are farm machines. So with this parameter it is
+possible to submit the same job multiple times.. But it is a bad hack.
+
+This system will be updated in Afanasy."""
+                pm.text(l='<b>Submit Multiple Times</b>', ann=ann)
+                pm.intField(
+                    'cgru_afanasy__submit_multiple_times',
+                    ann=ann,
+                    v=pm.optionVar.get(
+                        'cgru_afanasy__submit_multiple_times_ov',
+                        1
+                    )
+                )
+
+            with pm.rowLayout(nc=2, adj=2, cl2=('right', 'left'), cw2=(labels_width, 40)):
+                pm.text(l='<b>Close After</b>', al='right')
+                pm.checkBox(
+                    'cgru_afanasy__close',
+                    l='',
+                    v=1
+                )
+
             pm.button(
-                l='LAUNCH',
+                l='SUBMIT',
                 c=self.launch
             )
 
-            pm.checkBox(
-                'cgru_afanasy__close',
-                l='Close After',
-                v=1
-            )
 
         pm.showWindow(self.window)
 
@@ -245,38 +346,41 @@ class UI(object):
                 v.extension
             )
 
-        # check if it is a oyProjectManager job
-        from oyProjectManager.environments import mayaEnv
-        m = mayaEnv.Maya()
-        v = m.get_current_version()
-        if v is not None:
-            from oyProjectManager.models.version import Version
-            assert isinstance(v, Version)
-            # get asset or shot
-            versionable = v.version_of
+        try:
+            # check if it is a oyProjectManager job
+            from oyProjectManager.environments import mayaEnv
+            m = mayaEnv.Maya()
+            v = m.get_current_version()
+            if v is not None:
+                from oyProjectManager.models.version import Version
+                assert isinstance(v, Version)
+                # get asset or shot
+                versionable = v.version_of
 
-            from oyProjectManager.models.asset import Asset
-            from oyProjectManager.models.shot import Shot
+                from oyProjectManager.models.asset import Asset
+                from oyProjectManager.models.shot import Shot
 
-            first_part = None
-            if isinstance(versionable, Asset):
-                first_part = '%s:%s' % (
-                    versionable.project.code,
-                    versionable.code
-                )
-            elif isinstance(versionable, Shot):
-                first_part = '%s:%s' % (
-                    versionable.project.code,
-                    versionable.sequence.code
-                )
+                first_part = None
+                if isinstance(versionable, Asset):
+                    first_part = '%s:%s' % (
+                        versionable.project.code,
+                        versionable.code
+                    )
+                elif isinstance(versionable, Shot):
+                    first_part = '%s:%s' % (
+                        versionable.project.code,
+                        versionable.sequence.code
+                    )
 
-            return '%s:%s' % (
-                first_part,
-                '%s_%s_%s_v%03i_%s%s' % (
-                    v.base_name, v.take_name, v.type.code, v.version_number,
-                    v.created_by.initials, v.extension
+                return '%s:%s' % (
+                    first_part,
+                    '%s_%s_%s_v%03i_%s%s' % (
+                        v.base_name, v.take_name, v.type.code, v.version_number,
+                        v.created_by.initials, v.extension
+                    )
                 )
-            )
+        except ImportError:
+            return os.path.basename(pm.sceneName())
 
     def launch(self, *args, **kwargs):
         """launch renderer command
@@ -575,9 +679,15 @@ class UI(object):
         hosts_mask = pm.textField('cgru_afanasy__hosts_mask', q=1, text=True)
         hosts_exclude = pm.textField('cgru_afanasy__hosts_exclude', q=1, text=True)
         separate_layers = \
-            pm.checkBox('cgru_afanasy__separate_layers', q=1, v=1)
+            pm.radioButtonGrp('cgru_afanasy__separate_layers', q=1, sl=1)
         pause = pm.checkBox('cgru_afanasy__paused', q=1, v=1)
         life_time = pm.intField('cgru_afanasy__life_time', q=1, v=1)
+        annotation = pm.textField('cgru_afanasy__annotation', q=1, text=True)
+        submit_multiple_times = pm.intField('cgru_afanasy__submit_multiple_times', q=1, v=1)
+        errors_avoid_host = pm.intField('cgru_afanasy__errors_avoid_host', q=1, v=1)
+        errors_retries = pm.intField('cgru_afanasy__errors_retries', q=1, v=1)
+        errors_task_same_host = pm.intField('cgru_afanasy__errors_task_same_host', q=1, v=1)
+        errors_forgive_time = pm.intField('cgru_afanasy__errors_forgive_time', q=1, v=1)
 
         # check values
         if start_frame > end_frame:
@@ -601,6 +711,13 @@ class UI(object):
         pm.optionVar['cgru_afanasy__hosts_exclude_ov'] = hosts_exclude
         pm.optionVar['cgru_afanasy__separate_layers_ov'] = separate_layers
         pm.optionVar['cgru_afanasy__life_time_ov'] = life_time
+        pm.optionVar['cgru_afanasy__annotation_ov'] = annotation
+
+        pm.optionVar['cgru_afanasy__submit_multiple_times_ov'] = submit_multiple_times
+        pm.optionVar['cgru_afanasy__errors_avoid_host_ov'] = errors_avoid_host
+        pm.optionVar['cgru_afanasy__errors_retries_ov'] = errors_retries
+        pm.optionVar['cgru_afanasy__errors_task_same_host_ov'] = errors_task_same_host
+        pm.optionVar['cgru_afanasy__errors_errors_forgive_time_ov'] = errors_forgive_time
 
         # get paths
         scene_name = pm.sceneName()
@@ -637,8 +754,6 @@ class UI(object):
         if pm.checkBox('cgru_afanasy__close', q=1, v=1):
             pm.deleteUI(self.window)
 
-        job = af.Job(job_name)
-
         stored_log_level = None
         if render_engine == 'arnold':
             # set the verbosity level to warning+info
@@ -673,7 +788,12 @@ class UI(object):
         )
 
         # submit renders
+        jobs = []
         blocks = []
+        if separate_layers == 0 or separate_layers == 1:
+            job = af.Job(job_name)
+            jobs.append(job)
+
         if separate_layers:
             # render each layer separately
             rlm = pm.PyNode('renderLayerManager')
@@ -692,10 +812,25 @@ class UI(object):
                     renderer_to_block_type.get(render_engine, 'maya')
                 )
 
+                # Fix the output path for this layer
+                # by replacing the "masterLayer" with the layer name
+                # without rs_ at the beginning
+                layer_outputs = outputs
+                if layer_name != 'defaultRenderLayer':
+                    layer_outputs[0] = outputs[0].replace(
+                        'masterLayer',
+                        layer_name.replace('rs_', '')
+                    )
+                    layer_outputs[1] = outputs[1].replace(
+                        'masterLayer',
+                        layer_name.replace('rs_', '')
+                    )
+
                 outputs_split = afcommon.patternFromDigits(
                     afcommon.patternFromStdC(
                         afcommon.patternFromPaths(
-                                outputs[0], outputs[1]
+                            layer_outputs[0],
+                            layer_outputs[1]
                         )
                     )
                 ).split(';')
@@ -706,8 +841,22 @@ class UI(object):
                     start_frame, end_frame, frames_per_task, by_frame
                 )
                 command = mrc_layer.build_command()
+
+                block.setErrorsAvoidHost(errors_avoid_host)
+                block.setErrorsRetries(errors_retries)
+                block.setErrorsTaskSameHost(errors_task_same_host)
+                block.setErrorsForgiveTime(errors_forgive_time)
+
                 block.setCommand(command)
-                blocks.append(block)
+
+                if separate_layers == 1:
+                    blocks.append(block)
+                else:
+                    job = af.Job('%s - %s' % (job_name, layer_name))
+                    # add blocks
+                    job.blocks = [block]
+                    jobs.append(job)
+
         else:
             # create only one block
             block = af.Block(
@@ -730,26 +879,35 @@ class UI(object):
 
             blocks.append(block)
 
-        job.setFolder('input', os.path.dirname(filename))
-        job.setFolder('output', os.path.dirname(outputs[0]))
-        job.setHostsMask(hosts_mask)
-        job.setHostsMaskExclude(hosts_exclude)
-        if life_time > 0:
-            job.setTimeLife(life_time * 3600)
-        else:
-            job.setTimeLife(240 * 3600)
+        for job in jobs:
+            job.setAnnotation(annotation)
+            job.setFolder('input', os.path.dirname(filename))
+            job.setFolder('output', os.path.dirname(outputs[0]))
+            job.setHostsMask(hosts_mask)
+            job.setHostsMaskExclude(hosts_exclude)
+            if life_time > 0:
+                job.setTimeLife(life_time * 3600)
+            else:
+                job.setTimeLife(240 * 3600)
 
-        job.setCmdPost('deletefiles "%s"' % os.path.abspath(filename))
-        if pause:
-            job.offline()
+            job.setCmdPost('deletefiles "%s"' % os.path.abspath(filename))
+            if pause:
+                job.offline()
 
-        # add blocks
-        job.blocks.extend(blocks)
+            # add blocks
+            if separate_layers == 2:
+                job.blocks.extend(blocks)
 
-        status, data = job.send()
-        if not status:
-            pm.PopupError('Something went wrong!')
-        print('data: %s' % data)
+            for i in range(submit_multiple_times):
+                orig_job_name = job.data['name']
+                job.setName('%s - %03i' % (orig_job_name, i + 1))
+                status, data = job.send()
+
+                # restore job name
+                job.setName(orig_job_name)
+                if not status:
+                    pm.PopupError('Something went wrong!')
+                print('data: %s' % data)
 
         # restore log level
         if render_engine == 'arnold':
