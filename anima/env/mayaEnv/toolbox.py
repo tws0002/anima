@@ -106,7 +106,7 @@ class Color(object):
 
 
 def UI():
-    #window setup
+    # window setup
     width = 260
     height = 650
     row_spacing = 3
@@ -125,7 +125,7 @@ def UI():
         title="Anima ToolBox"
     )
 
-    #the layout that holds the tabs
+    # the layout that holds the tabs
     main_formLayout = pm.formLayout(
         'main_formLayout', nd=100, parent=toolbox_window
     )
@@ -134,7 +134,7 @@ def UI():
         'main_tabLayout', scr=True, cr=True, parent=main_formLayout
     )
 
-    #attach the main_tabLayout to main_formLayout
+    # attach the main_tabLayout to main_formLayout
     pm.formLayout(
         main_formLayout, edit=True,
         attachForm=[
@@ -147,13 +147,13 @@ def UI():
 
     with main_tabLayout:
         # ----- GENERAL ------
-        general_columnLayout = pm.columnLayout(
-            'general_columnLayout',
+        general_column_layout = pm.columnLayout(
+            'general_column_layout',
             adj=True,
             cal="center",
             rs=row_spacing
         )
-        with general_columnLayout:
+        with general_column_layout:
             color.change()
             pm.button(
                 'version_creator_button',
@@ -302,6 +302,15 @@ def UI():
                 l='Cleanup Light Cameras',
                 c=RepeatedCallback(General.cleanup_light_cameras),
                 ann=General.cleanup_light_cameras.__doc__,
+                bgc=color.color
+            )
+
+            color.change()
+            pm.button(
+                'unshape_parent_node_button',
+                l='Unshape Parent Nodes',
+                c=RepeatedCallback(General.unshape_parent_nodes),
+                ann=General.unshape_parent_nodes.__doc__,
                 bgc=color.color
             )
 
@@ -505,15 +514,6 @@ def UI():
 
             color.change()
             pm.button(
-                'fix_uvsets_button',
-                l="Fix UVSets (DiffuseUV -> map1)",
-                c=RepeatedCallback(Modeling.fix_uvsets),
-                ann=Modeling.fix_uvsets,
-                bgc=color.color
-            )
-
-            color.change()
-            pm.button(
                 'oyHierarchyInstancer_button',
                 l="hierarchy_instancer on selected",
                 c=RepeatedCallback(Modeling.hierarchy_instancer),
@@ -523,12 +523,32 @@ def UI():
 
             color.change()
             pm.button(
-                'oyRelaxVerts_button',
-                l="relax_vertices",
+                'relax_verts_button',
+                l="Relax Vertices",
                 c=RepeatedCallback(Modeling.relax_vertices),
                 ann="opens relax_vertices",
                 bgc=color.color
             )
+
+            with pm.rowLayout(nc=4, adj=1):
+                def smooth_edges_callback():
+                    iteration = pm.intSliderGrp(
+                        "smooth_edges_iteration_intField", q=1, v=1
+                    )
+                    Modeling.smooth_edges(iteration=iteration)
+                pm.button(
+                    'smooth_edges_button',
+                    l="Smooth Edges",
+                    c=RepeatedCallback(smooth_edges_callback),
+                    ann=Modeling.smooth_edges.__doc__,
+                    bgc=color.color
+                )
+                pm.intSliderGrp(
+                    'smooth_edges_iteration_intField',
+                    v=100,
+                    min=0,
+                    max=100
+                )
 
             color.change()
             pm.button(
@@ -545,15 +565,6 @@ def UI():
                 l="Vertex Aligned Locator",
                 c=RepeatedCallback(Modeling.vertex_aligned_locator),
                 ann="Creates an aligned locator from selected vertices",
-                bgc=color.color
-            )
-
-            color.change()
-            pm.button(
-                'select_zero_uv_area_faces_button',
-                l="Filter Zero UV Area Faces",
-                c=RepeatedCallback(Modeling.select_zero_uv_area_faces),
-                ann="Selects faces with zero uv area",
                 bgc=color.color
             )
 
@@ -674,6 +685,77 @@ def UI():
                         4096
                     ),
                     bgc=Color.colors[5]
+                )
+
+            pm.text(l='========== UV Tools =============')
+
+            color.change()
+            pm.button(
+                'fix_uvsets_button',
+                l="Fix UVSets (DiffuseUV -> map1)",
+                c=RepeatedCallback(Modeling.fix_uvsets),
+                ann=Modeling.fix_uvsets,
+                bgc=color.color
+            )
+
+            color.change()
+            pm.button(
+                'select_zero_uv_area_faces_button',
+                l="Filter Zero UV Area Faces",
+                c=RepeatedCallback(Modeling.select_zero_uv_area_faces),
+                ann="Selects faces with zero uv area",
+                bgc=color.color
+            )
+
+            color.change()
+            pm.button(
+                'create_auto_uvmap_button',
+                l='Create Auto UVMap',
+                c=RepeatedCallback(Modeling.create_auto_uvmap),
+                ann=Modeling.create_auto_uvmap.__doc__,
+                bgc=color.color
+            )
+
+            with pm.rowLayout(nc=6, adj=1):
+                def transfer_uvs_button_callback(*args, **kwargs):
+                    label_lut = {
+                        'W': 0,
+                        'L': 1,
+                        'UV': 2,
+                        'C': 3,
+                        'T': 4
+                    }
+                    sample_space = label_lut[
+                        pm.radioCollection(
+                            'transfer_uvs_radio_collection',
+                            q=1, sl=1
+                        )
+                    ]
+                    Modeling.transfer_uvs(sample_space=sample_space)
+
+                pm.button('transfer_uvs_button',
+                          l="Transfer UVs",
+                          c=RepeatedCallback(transfer_uvs_button_callback),
+                          ann="Transfers UVs from one group to other, use it"
+                              "for LookDev -> Alembic",
+                          bgc=color.color)
+
+                pm.radioCollection('transfer_uvs_radio_collection')
+                button_with = 40
+                pm.radioButton(
+                    'W', w=button_with, al='left', ann='World'
+                )
+                pm.radioButton(
+                    'L', w=button_with, al='left', ann='Local'
+                )
+                pm.radioButton(
+                    'UV', w=button_with, al='left', ann='UV'
+                )
+                pm.radioButton(
+                    'C', w=button_with, al='left', ann='Component', sl=1
+                )
+                pm.radioButton(
+                    'T', w=button_with, al='left', ann='Topology'
                 )
 
         # ----- RIGGING ------
@@ -1038,6 +1120,19 @@ def UI():
                       ann=Render.unnormalize_texture_paths.__doc__,
                       bgc=color.color)
 
+            color.change()
+            pm.button('assign_random_material_color_button',
+                      l="Assign Material with Random Color",
+                      c=RepeatedCallback(Render.assign_random_material_color),
+                      ann=Render.assign_random_material_color.__doc__,
+                      bgc=color.color)
+
+            pm.button('randomize_material_color_button',
+                      l="Randomize Material Color",
+                      c=RepeatedCallback(Render.randomize_material_color),
+                      ann=Render.randomize_material_color.__doc__,
+                      bgc=color.color)
+
             pm.text(l='============ Camera Tools ============')
             color.change()
             pm.button(
@@ -1095,13 +1190,6 @@ def UI():
                       l="Transfer Shaders",
                       c=RepeatedCallback(Render.transfer_shaders),
                       ann="Transfers shaders from one group to other, use it"
-                          "for LookDev -> Alembic",
-                      bgc=color.color)
-
-            pm.button('transfer_uvs_button',
-                      l="Transfer UVs",
-                      c=RepeatedCallback(Render.transfer_uvs),
-                      ann="Transfers UVs from one group to other, use it"
                           "for LookDev -> Alembic",
                       bgc=color.color)
 
@@ -1919,7 +2007,7 @@ def UI():
         main_tabLayout,
         edit=True,
         tabLabel=[
-            (general_columnLayout, "Gen"),
+            (general_column_layout, "Gen"),
             (reference_columnLayout, "Ref"),
             (modeling_column_layout, "Mod"),
             (rigging_columnLayout, "Rig"),
@@ -1974,6 +2062,41 @@ class General(object):
         tempfile.gettempdir(),
         'transform_info'
     )
+
+    @classmethod
+    def unshape_parent_nodes(cls):
+        """Moves the shape node of a mesh to another transform node as a
+        children if the mesh node has other meshes under it. Essentially
+        cleaning the scene.
+        """
+        mesh_nodes_with_transform_children = []
+        all_meshes = pm.ls(dag=1, type='mesh')
+
+        for node in all_meshes:
+            parent = node.getParent()
+            tra_under_shape = pm.ls(
+                parent.listRelatives(),
+                type='transform'
+            )
+            if len(tra_under_shape):
+                mesh_nodes_with_transform_children.append(parent)
+
+        for node in mesh_nodes_with_transform_children:
+            # duplicate the node
+            dup = pm.duplicate(node)[0]
+
+            # remove all descendents
+            all_descendents = dup.listRelatives(ad=1)
+            # remove the shape from the list
+            all_descendents.remove(dup.getShape())
+
+            pm.delete(all_descendents)
+
+            # parent under the original node
+            pm.parent(dup, node)
+
+            # remove the shape of the original node
+            pm.delete(node.getShape())
 
     @classmethod
     def namespace_deleter(cls):
@@ -3237,6 +3360,139 @@ class Modeling(object):
     """
 
     @classmethod
+    def smooth_edges(cls, iteration=1):
+        """Smooths the selected edge loops
+        """
+        orig_selection = pm.selected()
+
+        vtxs = pm.ls(pm.polyListComponentConversion(toVertex=1), fl=1)
+        ordered_vtxs = []
+        bucket = []
+
+        # find a start vertex that have only one neighbour in the vtxs list
+        shape = vtxs[0].node()
+
+        for vtx in vtxs:
+            in_list = 0
+            indeces = vtx.connectedVertices().indices()
+            for cvtx_index in indeces:
+                cvtx = pm.PyNode('%s.vtx[%s]' % (shape.name(), cvtx_index))
+                if cvtx in vtxs:
+                    in_list += 1
+            if in_list == 1:
+                ordered_vtxs.append(vtx)
+                bucket.append(vtx)
+                vtxs.remove(vtx)
+                break
+
+        # iterate over the bucket
+        i = 0
+        while bucket and i < 100:
+            current_vtx = bucket.pop()
+
+            cvtx_indeces = current_vtx.connectedVertices().indices()
+            for cvtx_index in cvtx_indeces:
+                cvtx = pm.PyNode('%s.vtx[%s]' % (shape.name(), cvtx_index))
+                if cvtx in vtxs:
+                    vtxs.remove(cvtx)
+                    bucket.append(cvtx)
+                    ordered_vtxs.append(cvtx)
+                    break
+            i += 1
+
+        # get the vertex positions
+        ordered_vtx_positions = [pm.dt.Vector(pm.xform(vtx, q=1, ws=1, t=1))
+                                 for vtx in ordered_vtxs]
+
+        # smooth the positions
+        from anima import utils
+        ordered_vtx_positions = utils.smooth_array(
+            ordered_vtx_positions, iteration
+        )
+
+        # set it back
+        map(lambda x, y: pm.xform(y, ws=1, t=x), ordered_vtx_positions,
+            ordered_vtxs)
+
+        # reselect original selection
+        pm.select(orig_selection)
+
+    @classmethod
+    def transfer_uvs(cls, sample_space=4):
+        """transfer uvs between selected objects. It can search for
+        hierarchies both in source and target sides.
+
+        :parm sample_space: The sampling space:
+
+          0: World
+          1: Local
+          2: UV
+          3: Component
+          4: Topology
+        """
+        selection = pm.ls(sl=1)
+        pm.select(None)
+        source = selection[0]
+        target = selection[1]
+        # auxiliary.transfer_shaders(source, target)
+        # pm.select(selection)
+
+        lut = auxiliary.match_hierarchy(source, target)
+
+        for source, target in lut['match']:
+            pm.transferAttributes(
+                source,
+                target,
+                transferPositions=0,
+                transferNormals=0,
+                transferUVs=2,
+                transferColors=2,
+                sampleSpace=sample_space,
+                sourceUvSpace='map1',
+                searchMethod=3,
+                flipUVs=0,
+                colorBorders=1
+            )
+        # restore selection
+        pm.select(selection)
+
+    @classmethod
+    def create_auto_uvmap(cls):
+        """creates automatic uv maps for the selected objects and layouts the
+        uvs. Fixes model problems along the way.
+        """
+        from anima.env.mayaEnv import toolbox
+        reload(toolbox)
+
+        for node in pm.selected():
+            pm.polyAutoProjection(
+                node,
+                lm=0, pb=0, ibd=1, cm=0, l=2, sc=1, o=1, p=6, ps=0.2, ws=0
+            )
+
+            pm.select(node)
+            f = toolbox.Modeling.select_zero_uv_area_faces()
+
+            if f:
+                print("DELETED Faces!")
+                pm.delete(f)
+
+            pm.select(node)
+            try:
+                pm.u3dLayout(node, res=256, scl=3, spc=0.0078125,
+                             mar=0.0078125, box=(0, 1, 0, 1))
+            except RuntimeError as e:
+                if 'non-manifold UVs' in str(e):
+                    pm.mel.eval('Unfold3DFixNonManifold({"nonManifoldUV"})')
+                pm.u3dLayout(node, res=256, scl=3, spc=0.0078125,
+                             mar=0.0078125, box=(0, 1, 0, 1))
+
+            pm.select(node)
+            pm.mel.eval('DeleteHistory;')
+
+            pm.select(node)
+
+    @classmethod
     def fix_uvsets(cls):
         """Fixes uvSets (DiffuseUV -> map1)
         """
@@ -3492,12 +3748,12 @@ class Modeling(object):
                 uvs = []
                 try:
                     for j in range(node.numPolygonVertices(i)):
-                        #uvs.append(node.getPolygonUV(i, j))
+                        # uvs.append(node.getPolygonUV(i, j))
                         uv_id = node.getPolygonUVid(i, j)
                         uvs.append((all_uvs[0][uv_id], all_uvs[1][uv_id]))
                     if area(uvs) == 0.0:
-                        #meshes_with_zero_uv_area.append(node)
-                        #break
+                        # meshes_with_zero_uv_area.append(node)
+                        # break
                         faces_with_zero_uv_area.append(
                             '%s.f[%s]' % (node.fullPath(), i)
                         )
@@ -3510,8 +3766,10 @@ class Modeling(object):
 
         if len(faces_with_zero_uv_area) == 0:
             pm.warning('No Zero UV area polys found!!!')
+            return []
         else:
             pm.select(faces_with_zero_uv_area)
+            return faces_with_zero_uv_area
 
     @classmethod
     def set_pivot(cls, axis=0):
@@ -3851,9 +4109,67 @@ class Render(object):
     }
 
     @classmethod
+    def assign_random_material_color(cls):
+        """assigns a lambert with a random color to the selected object
+        """
+        selected = pm.selected()
+
+        # create the lambert material
+        lambert = pm.shadingNode('lambert', asShader=1)
+
+        # create the shading engine
+        shading_engine = pm.nt.ShadingEngine()
+        lambert.outColor >> shading_engine.surfaceShader
+
+        # randomize the lambert color
+        import random
+        h = random.random()  # 0-1
+        s = random.random() * 0.5 + 0.25  # 0.25-0.75
+        v = random.random() * 0.5 + 0.5  # 0.5 - 1
+
+        from anima.utils import hsv_to_rgb
+        r, g, b = hsv_to_rgb(h, s, v)
+        lambert.color.set(r, g, b)
+
+        pm.sets(shading_engine, fe=selected)
+        pm.select(selected)
+
+    @classmethod
+    def randomize_material_color(cls):
+        """randomizes material color of selected nodes
+        """
+        selected = pm.selected()
+        all_materials = []
+        for node in selected:
+            shading_engines = node.listHistory(f=1, type='shadingEngine')
+            if not shading_engines:
+                continue
+            shading_engine = shading_engines[0]
+            materials = shading_engine.surfaceShader.inputs()
+            if not materials:
+                continue
+            else:
+                for material in materials:
+                    if material not in all_materials:
+                        all_materials.append(material)
+
+        import random
+        from anima.utils import hsv_to_rgb
+        attr_lut = {
+            'lambert': 'color',
+        }
+        for material in all_materials:
+            h = random.random()  # 0-1
+            s = random.random() * 0.5 + 0.25  # 0.25-0.75
+            v = random.random() * 0.5 + 0.5  # 0.5 - 1
+            r, g, b = hsv_to_rgb(h, s, v)
+            attr_name = attr_lut[material.type()]
+            material.attr(attr_name).set(r, g, b)
+
+    @classmethod
     def vertigo_setup_look_at(cls):
-        """sets up a the necessary locator for teh Vertigo effect for the selected
-        camera
+        """sets up a the necessary locator for teh Vertigo effect for the
+        selected camera
         """
         from anima.env.mayaEnv import vertigo
         cam = pm.ls(sl=1)[0]
@@ -4737,35 +5053,6 @@ class Render(object):
                         [node.name() for node in lut['no_match']]
                     )
                 )
-            )
-
-    @classmethod
-    def transfer_uvs(cls):
-        """transfer uvs between selected objects. It can search for
-        hierarchies both in source and target sides.
-        """
-        selection = pm.ls(sl=1)
-        pm.select(None)
-        source = selection[0]
-        target = selection[1]
-        # auxiliary.transfer_shaders(source, target)
-        # pm.select(selection)
-
-        lut = auxiliary.match_hierarchy(source, target)
-
-        for source, target in lut['match']:
-            pm.transferAttributes(
-                source,
-                target,
-                transferPositions=0,
-                transferNormals=0,
-                transferUVs=2,
-                transferColors=2,
-                sampleSpace=4,
-                sourceUvSpace='map1',
-                searchMethod=3,
-                flipUVs=0,
-                colorBorders=1
             )
 
     @classmethod
